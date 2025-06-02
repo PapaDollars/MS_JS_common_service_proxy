@@ -1,5 +1,4 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const discoveryService = require('../services/discovery.service');
 
 /**
  * Middleware de proxy
@@ -7,30 +6,11 @@ const discoveryService = require('../services/discovery.service');
  */
 const proxyMiddleware = async (req, res, next, route) => {
   try {
-    const { id, uri } = route;
-    
-    // Extraire le nom du service de l'URI
-    // Format attendu: lb://service-name
-    const serviceName = uri.replace('lb://', '');
-    
-    // Rechercher les instances du service
-    const instances = await discoveryService.findServiceInstances(serviceName);
-    
-    if (!instances || instances.length === 0) {
-      return res.status(503).json({
-        message: `Service ${serviceName} indisponible`
-      });
-    }
-    
-    // Sélectionner une instance (load balancing simple: round-robin)
-    const instance = instances[Math.floor(Math.random() * instances.length)];
-    
-    // Construire l'URL cible
-    const target = `${instance.url}:${instance.port}`;
+    const { uri } = route;
     
     // Créer et appliquer le proxy
     const proxy = createProxyMiddleware({
-      target,
+      target: uri,
       changeOrigin: true,
       pathRewrite: (path) => {
         // Implémenter la logique de StripPrefix si nécessaire

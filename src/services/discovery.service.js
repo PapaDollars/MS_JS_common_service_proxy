@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const REGISTRY_SERVICE_URL = process.env.REGISTRY_SERVICE_URL || 'http://localhost:8761/eureka';
+const REGISTRY_SERVICE_URL = process.env.REGISTRY_SERVICE_URL || 'http://localhost:8761';
 
 /**
  * Service pour interagir avec le service de découverte
@@ -16,7 +16,7 @@ const discoveryService = {
    */
   async registerService(service) {
     try {
-      const response = await axios.post(`${REGISTRY_SERVICE_URL}/apps`, service);
+      const response = await axios.post(`${REGISTRY_SERVICE_URL}/api/registry/register`, service);
       return response.data;
     } catch (error) {
       console.error(`Erreur lors de l'enregistrement du service ${service.name}:`, error.message);
@@ -32,7 +32,7 @@ const discoveryService = {
    */
   async deregisterService(name, instanceId) {
     try {
-      const response = await axios.delete(`${REGISTRY_SERVICE_URL}/apps/${name}/${instanceId}`);
+      const response = await axios.delete(`${REGISTRY_SERVICE_URL}/api/registry/deregister/${name}/${instanceId}`);
       return response.data;
     } catch (error) {
       console.error(`Erreur lors du désenregistrement du service ${name}:`, error.message);
@@ -48,7 +48,7 @@ const discoveryService = {
    */
   async sendHeartbeat(name, instanceId) {
     try {
-      const response = await axios.put(`${REGISTRY_SERVICE_URL}/apps/${name}/${instanceId}/heartbeat`);
+      const response = await axios.put(`${REGISTRY_SERVICE_URL}/api/registry/heartbeat/${name}/${instanceId}`);
       return response.data;
     } catch (error) {
       console.error(`Erreur lors de l'envoi du heartbeat pour ${name}:`, error.message);
@@ -63,7 +63,7 @@ const discoveryService = {
    */
   async findServiceInstances(serviceName) {
     try {
-      const response = await axios.get(`${REGISTRY_SERVICE_URL}/apps/${serviceName}`);
+      const response = await axios.get(`${REGISTRY_SERVICE_URL}/api/registry/instances/${serviceName}`);
       return response.data.instances || [];
     } catch (error) {
       console.error(`Erreur lors de la recherche d'instances pour ${serviceName}:`, error.message);
